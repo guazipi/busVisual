@@ -1,5 +1,7 @@
 /**
  * Created by Administrator on 2015/12/13.
+ * 这个折线图的例子是在网上找的，用的是d3js来做的，是基本的折线图，也不繁琐，
+ * 不过费功夫，网上有很多相关的相关例子，感兴趣可以多看看学习学习
  */
 var dataset=[];
 var xMarks=[];
@@ -114,11 +116,5 @@ function getData()
     {
         dataset.push(Math.round(Math.random()*h));
         xMarks.push((i+7));
-//            if(i==1){
-//                xMarks.push(i+2+3+"时");
-//            }else{
-//                xMarks.push(i+2+3+"时");
-//            }
-
     }
 }

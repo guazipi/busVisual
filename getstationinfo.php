@@ -4,6 +4,8 @@
  * User: Administrator
  * Date: 2015/12/12
  * Time: 13:06
+ * 从数据库中读取station相关的数据，并将其写入一个js文件中，
+ * 中文字符没有显示中文是因为编码过，直接在浏览器前端调用即可
  */
 header("charset=utf-8");
 $con = mysql_connect("localhost", "root");
