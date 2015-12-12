@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+    <style type="text/css">
+        body, html, #allmap {
+            width: 90%;
+            height: 90%;
+            overflow: hidden;
+            margin: 0;
+            font-family: "微软雅黑";
+        }
+    </style>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5V3RcyxXUAGkambaYmbdZNG7"></script>
+    <!--<script src="businfo.js"></script>-->
+    <!--<script src="stationinfo.js"></script>-->
+    <title>行进中的公交车</title>
+</head>
+<body>
+<button onclick="getbus()">查询一下</button>
+<div id="allmap"></div>
+<script type="text/javascript">
+    function getbus() {
+        // 百度地图API功能
+        var map = new BMap.Map("allmap");
+        map.centerAndZoom(new BMap.Point(121.3, 31.2), 12);
+        map.enableScrollWheelZoom();
+
+
+        var busline = new BMap.BusLineSearch('上海', {
+            renderOptions: {map: map},
+            onGetBusListComplete: function (result) {
+                if (result) {
+                    //tempVar = result;//此时的结果并不包含坐标信息，所以getCoordinate函数不能在此调用。通过跟踪变量，坐标是在onGetBusListComplete之后才被百度的包添加进来的
+                    busline.getBusLine(result.getBusListItem(0));
+                }
+            },
+//            onPolylineSet: function (polyline) {
+//
+//            }
+        });
+
+        busline.getBusList('81');
+        map.addOverlay(busline);
+    }
+
+</script>
+</body>
+</html>
+
+
+
