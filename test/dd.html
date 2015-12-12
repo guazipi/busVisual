@@ -17,6 +17,7 @@
         }
     </style>
     <script src="http://api.map.baidu.com/api?v=1.3" type="text/javascript"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.js"></script>
 </head>
 <body>
 <p><label for="busId">公交线路：</label><input type="text" value="81" id="busId"/><input type="button" id="btn-search"
@@ -51,10 +52,21 @@
             var coordinate = document.getElementById("coordinate");
             var stations = result['0']._stations;
             var html = [];
+
+            var allStation=[];
             stations.forEach(function (item) {
                 html.push('<li>' + item.name + ' ' + item.position.lng + ' ' + item.position.lat + '</li>');
-
+                allStation.push(new Array(item.name,item.position.lng,item.position.lat));
             });
+            var stationsInfo={};
+            stationsInfo.info=allStation;
+            $.post("updateStation.php",{info:allStation},function(result){
+                console.log(result);
+                console.log("肯定能成功");
+                alert("ok");
+            })
+
+
             coordinate.innerHTML = '<ul>' + html.join('') + '</ul>';
         }
 
