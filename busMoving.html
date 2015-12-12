@@ -25,11 +25,10 @@
         }
     </style>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5V3RcyxXUAGkambaYmbdZNG7"></script>
-    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.js"></script>
+    <script src="js/jquery2.1.1.js"></script>
     <script src="businfo.js"></script>
     <script src="stationinfo.js"></script>
     <script src="js/d3.js"></script>
-
 
     <title>行进中的公交车</title>
 </head>
@@ -43,7 +42,8 @@
     map.enableScrollWheelZoom();
 
     //    alert(stationinfo[1][0]);
-
+    //将businfo.js中所有经过的站点通过ZDID来进行匹配，
+    // 如果匹配成功，则将stationinfo中的站点的站点名称和坐标作为数组的三个元素添加到businfo大数组中
     for (var k = 0; k < businfo.length; k++) {
         for (var i = 0; i < stationinfo.length; i++) {
             if (stationinfo[i][1] == businfo[k][2]) {
@@ -57,7 +57,8 @@
             }
         }
     }
-    console.log(businfo);
+    //console.log(businfo);//用来测试
+    //地图上显示移动的公交车的图标，可自行下载自己喜欢的，直接替换即可
     var myIcon = new BMap.Icon("img/Mario.png", new BMap.Size(32, 70), {
         imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
     });
@@ -74,19 +75,24 @@
             offset: new BMap.Size(20, -25),
         });  // 创建信息窗口对象
 
-            carMk.openInfoWindow(infoWindow);
+        //控制显示infowindow
+        carMk.openInfoWindow(infoWindow);
+        //点击移动的图标时，显示infowindow
         carMk.addEventListener("click", function () {
             this.openInfoWindow(infoWindow);
         });
 
         i = 0;
         function resetMkPoint(i) {
+            //指定公交车图标的位置
             carMk.setPosition(new BMap.Point(businfo[i][8], businfo[i][9]));
-            //更改位置时，把下一位置的相关信息赋值给htmlstr
+
+            //更改位置时，把下一位置的相关信息赋值给htmlstr，
+            //同时随机更新图表的内容
             var htmlstr = gethtml("81路", "沪D-98495", businfo[i][4], businfo[i][5], businfo[i][7], businfo[i][6]);
             infoWindow.setContent(htmlstr);
             drawChart();
-
+            //将html页面中的中间载体chartLine的html代码赋值给infowindow中的chartLine11
             $("#chartLine11").html($("#chartLine").html());
 
             if (i < length) {
@@ -101,12 +107,12 @@
             resetMkPoint(5);
         }, 1500)
     }
-
+    //控制公交车每隔一段时间移动一下
     setTimeout(function () {
         run();
     }, 9000);
 
-
+    //控制infowindow中显示内容的html代码
     function gethtml(busline, busid, outOrIn, upOrDown, zdmc, time) {
         var html = "";
         html += "        <table>";
@@ -137,15 +143,13 @@
         html += "                <td> 当前时间 </td>";
         html += "                <td>" + time + "</td>";
         html += "            </tr>";
-//        html += "            <tr>";
-//        html += "                <td> <div id='chartLine11'></div> </td>";
-//        html += "            </tr>";
         html += "        </table>";
-        html+="<div id='chartLine11'></div> ";
+        html += "<div id='chartLine11'></div> ";
         return html;
     }
 
-
+    //通过百度地图API自带的公交搜索功能，搜索特定的公交线路，并添加到百度地图上
+    // 这里将公交线路写死了，因为businfo里面只有81路。以后如果有更多的数据也没问题，直接查询相应的线路名称即可
     var busline = new BMap.BusLineSearch('上海', {
         renderOptions: {map: map},
         onGetBusListComplete: function (result) {

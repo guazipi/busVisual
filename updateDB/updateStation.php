@@ -4,9 +4,12 @@
  * User: Administrator
  * Date: 2015/12/12
  * Time: 22:36
+
+ * 由于原始的公交站点数据不精确，所以添加到百度地图上时，与百度本身的数据偏移较大，
+ * 所以在getBusInfo.html文件中截取获得的公交站点信息，并把这些信息提交给后台的本文件，
+ * 本文件连接数据库，并进行查询匹配，如果匹配成功则更新数据库。
+ * 此时只更新了81路公交路线的站点精确坐标信息
  */
-
-
 $stationsArr=$_POST["info"];
 //echo $stationsOrr[0][0];
 
@@ -31,7 +34,6 @@ foreach ($stationsArr as $value) {
     if (!mysql_query($updatedb, $con)) {
         die('Error: ' . mysql_error());
     }
-
 }
 mysql_close($con);
 echo "well done";
