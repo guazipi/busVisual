@@ -11,117 +11,139 @@
             margin: 0;
             font-family: "微软雅黑";
         }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: black;
+            shape-rendering: crispEdges;
+        }
+
+        .axis text {
+            font-family: sans-serif;
+            font-size: 11px;
+        }
     </style>
     <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=5V3RcyxXUAGkambaYmbdZNG7"></script>
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.js"></script>
     <script src="businfo.js"></script>
     <script src="stationinfo.js"></script>
+    <script src="js/d3.js"></script>
+
+
     <title>行进中的公交车</title>
 </head>
 <body>
 <div id="allmap"></div>
+<div id="chartLine"></div>
 <script type="text/javascript">
     // 百度地图API功能
     var map = new BMap.Map("allmap");
     map.centerAndZoom(new BMap.Point(121.3, 31.2), 12);
     map.enableScrollWheelZoom();
 
-//    alert(stationinfo[1][0]);
+    //    alert(stationinfo[1][0]);
 
-        for (var k = 0; k < businfo.length; k++) {
-            for (var i = 0; i < stationinfo.length; i++) {
-                if (stationinfo[i][1] == businfo[k][2]) {
-                    businfo[k].push(stationinfo[i][3]);
-                    businfo[k].push(stationinfo[i][4]);
-                    businfo[k].push(stationinfo[i][5]);
-
-                    continue;
-    //            businfo[k][7]=stationinfo[i][3];
-    //            businfo[k][8]=stationinfo[i][4];
-    //            businfo[k][9]=stationinfo[i][5];
-                }
+    for (var k = 0; k < businfo.length; k++) {
+        for (var i = 0; i < stationinfo.length; i++) {
+            if (stationinfo[i][1] == businfo[k][2]) {
+                businfo[k].push(stationinfo[i][3]);
+                businfo[k].push(stationinfo[i][4]);
+                businfo[k].push(stationinfo[i][5]);
+                continue;
+                //            businfo[k][7]=stationinfo[i][3];
+                //            businfo[k][8]=stationinfo[i][4];
+                //            businfo[k][9]=stationinfo[i][5];
             }
         }
-        console.log(businfo);
-        var myIcon = new BMap.Icon("Mario.png", new BMap.Size(32, 70), {
-            imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
-        });
+    }
+    console.log(businfo);
+    var myIcon = new BMap.Icon("Mario.png", new BMap.Size(32, 70), {
+        imageOffset: new BMap.Size(0, 0)    //图片的偏移量。为了是图片底部中心对准坐标点。
+    });
 
-        window.run = function () {
-            var orginPoint = new BMap.Point(businfo[0][8], businfo[0][9]);
-            var length = businfo.length;
-            var carMk = new BMap.Marker(orginPoint, {icon: myIcon});
-            map.addOverlay(carMk);
+    window.run = function () {
+        var orginPoint = new BMap.Point(businfo[0][8], businfo[0][9]);
+        var length = businfo.length;
+        var carMk = new BMap.Marker(orginPoint, {icon: myIcon});
+        map.addOverlay(carMk);
 
 
-            var sContent = gethtml("81路","沪D-98495",businfo[0][4],businfo[0][5],businfo[0][7],businfo[0][6]);
-            var infoWindow = new BMap.InfoWindow(sContent,{
-                offset: new BMap.Size(20, -25),
-            });  // 创建信息窗口对象
+        var sContent = gethtml("81路", "沪D-98495", businfo[0][4], businfo[0][5], businfo[0][7], businfo[0][6]);
+        var infoWindow = new BMap.InfoWindow(sContent, {
+            offset: new BMap.Size(20, -25),
+        });  // 创建信息窗口对象
 
             carMk.openInfoWindow(infoWindow);
-            carMk.addEventListener("click", function(){
-                this.openInfoWindow(infoWindow);
-            });
+        carMk.addEventListener("click", function () {
+            this.openInfoWindow(infoWindow);
+        });
 
-            i = 0;
-            function resetMkPoint(i) {
-                carMk.setPosition(new BMap.Point(businfo[i][8], businfo[i][9]));
+        i = 0;
+        function resetMkPoint(i) {
+            carMk.setPosition(new BMap.Point(businfo[i][8], businfo[i][9]));
+            //更改位置时，把下一位置的相关信息赋值给htmlstr
+            var htmlstr = gethtml("81路", "沪D-98495", businfo[i][4], businfo[i][5], businfo[i][7], businfo[i][6]);
+            infoWindow.setContent(htmlstr);
+            drawChart();
 
-                //更改位置时，把下一位置的相关信息赋值给htmlstr
-                var htmlstr=gethtml("81路","沪D-98495",businfo[i][4],businfo[i][5],businfo[i][7],businfo[i][6]);
-                infoWindow.setContent(htmlstr);
+            $("#chartLine11").html($("#chartLine").html());
 
-                if (i < length) {
-                    setTimeout(function () {
-                        i++;
-                        resetMkPoint(i);
-                    }, 1000);
-                }
+            if (i < length) {
+                setTimeout(function () {
+                    i++;
+                    resetMkPoint(i);
+                }, 1500);
             }
-
-            setTimeout(function () {
-                resetMkPoint(5);
-            }, 1000)
         }
 
         setTimeout(function () {
-            run();
-        }, 9000);
+            resetMkPoint(5);
+        }, 1500)
+    }
+
+    setTimeout(function () {
+        run();
+    }, 9000);
 
 
-        function gethtml(busline,busid,outOrIn,upOrDown,zdmc,time) {
-            var html = "";
-            html += "        <table>";
-            html += "            <tr>";
-            html += "                <th colspan='2'>公交车实时信息</th>";
-            html += "            </tr>";
-            html += "            <tr>";
-            html += "                <td> 公交线路</td>";
-            html += "                <td>" + busline + "</td>";
-            html += "            </tr>";
-            html += "            <tr>";
-            html += "                <td width='50%'>公交车车牌号</td>";
-            html += "                <td>" + busid + "</td>";
-            html += "            </tr>";
-            html += "            <tr>";
-            html += "                <td> 进站或出站 </td>";
-            html += "                <td>" + outOrIn + "</td>";
-            html += "            </tr>";
-            html += "            <tr>";
-            html += "                <td width='50%'>上行或下行</td>";
-            html += "                <td>" + upOrDown + "</td>";
-            html += "            </tr>";
-            html += "            <tr>";
-            html += "                <td> 站点名称 </td>";
-            html += "                <td>" + zdmc + "</td>";
-            html += "            </tr>";
-            html += "            <tr>";
-            html += "                <td> 当前时间 </td>";
-            html += "                <td>" + time + "</td>";
-            html += "            </tr>";
-            html += "        </table>";
-            return html;
-        }
+    function gethtml(busline, busid, outOrIn, upOrDown, zdmc, time) {
+        var html = "";
+        html += "        <table>";
+        html += "            <tr>";
+        html += "                <th colspan='2'>公交车实时信息</th>";
+        html += "            </tr>";
+        html += "            <tr>";
+        html += "                <td> 公交线路</td>";
+        html += "                <td>" + busline + "</td>";
+        html += "            </tr>";
+        html += "            <tr>";
+        html += "                <td width='50%'>公交车车牌号</td>";
+        html += "                <td>" + busid + "</td>";
+        html += "            </tr>";
+        html += "            <tr>";
+        html += "                <td> 进站或出站 </td>";
+        html += "                <td>" + outOrIn + "</td>";
+        html += "            </tr>";
+        html += "            <tr>";
+        html += "                <td width='50%'>上行或下行</td>";
+        html += "                <td>" + upOrDown + "</td>";
+        html += "            </tr>";
+        html += "            <tr>";
+        html += "                <td> 站点名称 </td>";
+        html += "                <td>" + zdmc + "</td>";
+        html += "            </tr>";
+        html += "            <tr>";
+        html += "                <td> 当前时间 </td>";
+        html += "                <td>" + time + "</td>";
+        html += "            </tr>";
+//        html += "            <tr>";
+//        html += "                <td> <div id='chartLine11'></div> </td>";
+//        html += "            </tr>";
+        html += "        </table>";
+        html+="<div id='chartLine11'></div> ";
+        return html;
+    }
 
 
     var busline = new BMap.BusLineSearch('上海', {
@@ -132,14 +154,11 @@
                 busline.getBusLine(result.getBusListItem(0));
             }
         },
-//            onPolylineSet: function (polyline) {
-//
-//            }
     });
-
     busline.getBusList('81');
     map.addOverlay(busline);
 </script>
+<script src="js/chartLine.js"></script>
 </body>
 </html>
 
